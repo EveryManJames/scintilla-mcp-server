@@ -1,0 +1,36 @@
+# DigitalOcean App Platform spec. Replace <owner>/<repo>, then set the SECRET values in the console
+# or via the API. deploy_on_push rebuilds on every commit to main.
+name: scintilla-mcp
+region: nyc
+services:
+  - name: mcp
+    github:
+      repo: <owner>/scintilla-mcp-server
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: Dockerfile
+    http_port: 8080
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    health_check:
+      http_path: /health
+      initial_delay_seconds: 10
+    envs:
+      - key: GCP_SERVICE_ACCOUNT_JSON
+        scope: RUN_TIME
+        type: SECRET
+        value: "REPLACE_ME"
+      - key: MCP_BEARER_TOKEN
+        scope: RUN_TIME
+        type: SECRET
+        value: "REPLACE_ME"
+      - key: MAX_ROWS
+        scope: RUN_TIME
+        value: "500"
+ingress:
+  rules:
+    - component:
+        name: mcp
+      match:
+        path:
+          prefix: /
